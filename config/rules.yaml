@@ -1,0 +1,590 @@
+version: 1
+
+# Замените примеры на публичные username или числовые ID каналов.
+sources:
+  - "@megairon"
+  - "@pepperru"
+  - "@sale_prossd"
+  - "@hotprice"
+  - "@CoffeaTee"
+  - "@rx9070"
+  - -1004435726347
+
+filters:
+  # Любые настольные и серверные процессоры Intel/AMD.
+  - id: cpu_any
+    aliases:
+      - "процессор"
+      - "проц"
+      - "cpu"
+      - "ryzen"
+      - "threadripper"
+      - "athlon"
+      - "amd epyc"
+      - "intel core"
+      - "core ultra"
+      - "xeon"
+    fuzzy_threshold: 90
+    exclude: []
+
+  # DDR4: любой бренд, но только комплекты 2x8 или 2x16.
+  - id: ram_ddr4_kits
+    aliases:
+      - "ddr4"
+      - "ddr 4"
+    require_any:
+      - "2x8"
+      - "2 x 8"
+      - "2×8"
+      - "2 по 8"
+      - "2x16"
+      - "2 x 16"
+      - "2×16"
+      - "2 по 16"
+    fuzzy_threshold: 90
+    exclude: []
+
+  - id: ram_ddr5_brands
+    aliases:
+      - "ddr5"
+      - "ddr 5"
+    require_any:
+      - "acer"
+      - "kingbank"
+      - "patriot"
+      - "cusu"
+      - "teamgroup"
+      - "team group"
+      - "g.skill"
+      - "g skill"
+      - "2x8"
+      - "2 x 8"
+      - "2×8"
+      - "2 по 8"
+      - "2x16"
+      - "2 x 16"
+      - "2×16"
+      - "2 по 16"
+    fuzzy_threshold: 90
+    exclude: []
+
+  - id: motherboard_intel
+    aliases:
+      - "материнская плата"
+      - "материнка"
+      - "motherboard"
+      - "mainboard"
+    require_any:
+      - "lga1700"
+      - "lga 1700"
+      - "lga1851"
+      - "lga 1851"
+    fuzzy_threshold: 90
+    exclude: []
+
+  - id: motherboard_amd
+    aliases:
+      - "материнская плата"
+      - "материнка"
+      - "motherboard"
+      - "mainboard"
+    require_any:
+      - "am4"
+      - "am 4"
+      - "am5"
+      - "am 5"
+    fuzzy_threshold: 90
+    exclude: []
+
+  - id: cpu_cooler_any
+    aliases:
+      - "кулер"
+      - "охладитель процессора"
+      - "охлаждение процессора"
+      - "башенный охладитель"
+      - "башня для процессора"
+      - "cpu cooler"
+      - "air cooler"
+    fuzzy_threshold: 90
+    exclude: []
+
+  - id: liquid_cooling_any
+    aliases:
+      - "сжо"
+      - "водянка"
+      - "водяное охлаждение"
+      - "жидкостное охлаждение"
+      - "aio cooler"
+      - "liquid cooler"
+      - "water cooler"
+    fuzzy_threshold: 90
+    exclude: []
+
+  - id: psu_1stplayer
+    aliases:
+      - "1stplayer"
+      - "1st player"
+    require_any:
+      - "ack silver"
+      - "ack gold"
+      - "ar gold"
+      - "ngdp"
+    fuzzy_threshold: 92
+    exclude: []
+
+  - id: psu_redragon
+    aliases:
+      - "redragon"
+    require_any:
+      - "rgps gold"
+      - "rgps platinum"
+    fuzzy_threshold: 92
+    exclude: []
+
+  - id: psu_ardor_origin_gf
+    aliases:
+      - "ardor gaming origin gf"
+      - "ардор гейминг origin gf"
+    fuzzy_threshold: 92
+    exclude: []
+
+  - id: psu_pccooler
+    aliases:
+      - "pccooler"
+      - "pc cooler"
+    require_any:
+      - "yk"
+      - "ys"
+    fuzzy_threshold: 92
+    exclude: []
+
+  - id: psu_ocypus_iota
+    aliases:
+      - "ocypus iota"
+      - "осипус iota"
+    fuzzy_threshold: 92
+    exclude: []
+
+  - id: psu_phanteks_amp_gh
+    aliases:
+      - "phanteks"
+    require_any:
+      - "amp gh gold"
+      - "amp gh platinum"
+      - "amp gh 80 plus gold"
+      - "amp gh 80 plus platinum"
+    fuzzy_threshold: 92
+    exclude: []
+
+  - id: psu_lian_li_edge
+    aliases:
+      - "lian li edge"
+      - "lianli edge"
+    fuzzy_threshold: 92
+    exclude: []
+
+  - id: gamepads_brands
+    aliases:
+      - "геймпад"
+      - "контроллер для игр"
+      - "gamepad"
+      - "gaming controller"
+    require_any:
+      - "flydigi"
+      - "8bitdo"
+      - "8 bit do"
+      - "gamesir"
+    fuzzy_threshold: 90
+    exclude: []
+
+  - id: ssd_without_qlc
+    aliases:
+      - "ssd"
+      - "nvme"
+      - "твердотельный накопитель"
+      - "m.2 накопитель"
+      - "m2 накопитель"
+    fuzzy_threshold: 90
+    exclude:
+      - "qlc"
+      - "куэлси"
+      - "кьюэлси"
+
+  - id: pc_cases_any
+    aliases:
+      - "корпус для пк"
+      - "компьютерный корпус"
+      - "корпус пк"
+      - "pc case"
+      - "gaming case"
+    fuzzy_threshold: 90
+    exclude: []
+
+  - id: pc_fans_any
+    aliases:
+      - "корпусный вентилятор"
+      - "вентилятор для корпуса"
+      - "вентиляторы для пк"
+      - "комплект вентиляторов"
+      - "pc fan"
+      - "case fan"
+    fuzzy_threshold: 90
+    exclude: []
+
+  - id: tablets_brands
+    aliases:
+      - "планшет"
+      - "tablet"
+      - "pad tablet"
+    require_any:
+      - "oneplus"
+      - "one plus"
+      - "oppo"
+      - "lenovo"
+    fuzzy_threshold: 90
+    exclude: []
+
+  - id: laptops_brands
+    aliases:
+      - "ноутбук"
+      - "лэптоп"
+      - "laptop"
+      - "notebook"
+    require_any:
+      - "mechrevo"
+      - "mechanical revolution"
+      - "lenovo"
+      - "honor"
+      - "huawei"
+      - "apple"
+      - "macbook"
+    fuzzy_threshold: 90
+    exclude: []
+
+  - id: monitors_brands
+    aliases:
+      - "монитор"
+      - "monitor"
+      - "игровой дисплей"
+    require_any:
+      - "titan army"
+      - "innocn"
+      - "innodisplay"
+      - "inno display"
+      - "innolux"
+      - "razz"
+      - "sanc"
+      - "hartens"
+      - "gigabyte"
+      - "tcl"
+      - "ffalcon"
+      - "redmi"
+      - "рыгми"
+      - "xiaomi"
+      - "hispida"
+      - "lenovo"
+    fuzzy_threshold: 90
+    exclude: []
+
+  - id: monitors_oled_any
+    aliases:
+      - "монитор"
+      - "monitor"
+      - "игровой дисплей"
+    require_any:
+      - "oled"
+      - "qd-oled"
+      - "qd oled"
+      - "woled"
+      - "оled"
+      - "олед"
+    fuzzy_threshold: 90
+    exclude: []
+
+  - id: gpu_except_old_series
+    aliases:
+      - "видеокарта"
+      - "графическая карта"
+      - "gpu"
+      - "geforce"
+      - "rtx"
+      - "gtx"
+      - "radeon"
+      - "radeon rx"
+      - "intel arc"
+    fuzzy_threshold: 90
+    exclude:
+      - "rtx 20 series"
+      - "rtx 20 серия"
+      - "rtx 2060"
+      - "rtx 2060 super"
+      - "rtx 2070"
+      - "rtx 2070 super"
+      - "rtx 2080"
+      - "rtx 2080 super"
+      - "rtx 2080 ti"
+      - "rtx 30 series"
+      - "rtx 30 серия"
+      - "rtx 3050"
+      - "rtx 3060"
+      - "rtx 3060 ti"
+      - "rtx 3070"
+      - "rtx 3070 ti"
+      - "rtx 3080"
+      - "rtx 3080 ti"
+      - "rtx 3090"
+      - "rtx 3090 ti"
+      - "rx 6000 series"
+      - "rx 6000 серия"
+      - "rx 6400"
+      - "rx 6500"
+      - "rx 6500 xt"
+      - "rx 6600"
+      - "rx 6600 xt"
+      - "rx 6650 xt"
+      - "rx 6700"
+      - "rx 6700 xt"
+      - "rx 6750 xt"
+      - "rx 6800"
+      - "rx 6800 xt"
+      - "rx 6900 xt"
+      - "rx 6950 xt"
+
+  - id: keyboards_brands
+    aliases:
+      - "клавиатура"
+      - "клава"
+      - "keyboard"
+      - "механическая клавиатура"
+      - "магнитная клавиатура"
+    require_any:
+      - "cidoo"
+      - "pmo"
+      - "wobkey"
+      - "chillkey"
+      - "everglide"
+      - "atk"
+      - "wooting"
+      - "vgn"
+    fuzzy_threshold: 90
+    exclude: []
+
+  - id: mice_brands
+    aliases:
+      - "мышь"
+      - "мышка"
+      - "gaming mouse"
+      - "computer mouse"
+    require_any:
+      - "atk"
+      - "vgn"
+      - "waizowl"
+      - "scyrox"
+      - "wlmouse"
+      - "wl mouse"
+    fuzzy_threshold: 90
+    exclude: []
+
+  - id: smartphones_brands
+    aliases:
+      - "смартфон"
+      - "телефон"
+      - "smartphone"
+      - "mobile phone"
+    require_any:
+      - "motorola"
+      - "oppo"
+      - "vivo"
+      - "nothing"
+      - "zte"
+      - "oneplus"
+      - "one plus"
+    fuzzy_threshold: 90
+    exclude: []
+
+  - id: smartphones_xiaomi_without_note_poco
+    aliases:
+      - "смартфон"
+      - "телефон"
+      - "smartphone"
+      - "mobile phone"
+    require_any:
+      - "xiaomi"
+      - "redmi"
+      - "сяоми"
+      - "ксиаоми"
+    fuzzy_threshold: 90
+    exclude:
+      - "redmi note"
+      - "редми ноут"
+      - "poco"
+      - "поко"
+
+  - id: pc_build_accessories
+    aliases:
+      - "usb хаб"
+      - "usb hub"
+      - "argb хаб"
+      - "argb hub"
+      - "pwm хаб"
+      - "pwm hub"
+      - "контроллер вентиляторов"
+      - "контроллер оборотов"
+      - "контроллер подсветки"
+      - "fan controller"
+      - "rgb controller"
+      - "argb controller"
+      - "кабельные стяжки"
+      - "стяжки для проводов"
+      - "стяжки для кабелей"
+      - "cable ties"
+    fuzzy_threshold: 90
+    exclude: []
+
+  - id: thermal_interface_models
+    aliases:
+      - "arctic mx-7"
+      - "arctic mx7"
+      - "id cooling frost x45"
+      - "id-cooling frost x45"
+      - "id cooling frost x55"
+      - "id-cooling frost x55"
+      - "geektc gt6530"
+      - "geek tc gt6530"
+      - "honeywell ptm7950"
+      - "honeywell ptm 7950"
+      - "honeywell ptm7950sp"
+      - "honeywell ptm 7950 sp"
+    fuzzy_threshold: 92
+    exclude: []
+
+  - id: headphones_models
+    aliases:
+      - "vivo tws 4"
+      - "vivo tws 4 hi-fi"
+      - "vivo tws 5"
+      - "vivo tws 5 hi-fi"
+      - "iqoo tws 5"
+      - "iqoo tws 5 hi-fi"
+      - "kz edc pro"
+      - "kz zvx pro"
+      - "kz eldar"
+      - "kz edx pro x"
+      - "kz edx lite"
+      - "kz saga"
+      - "kbear kb01"
+      - "7hz x crinacle zero 2"
+      - "7hz crinacle zero 2"
+      - "dunu titan x"
+      - "truthear zero red"
+      - "truthear zero:red"
+      - "moondrop quark 2"
+      - "truthear nova"
+      - "epz k9"
+      - "wlmouse huan"
+      - "epz x wlmouse huan"
+      - "moondrop variations"
+      - "philips shp9500"
+      - "fiio jt1"
+      - "hifiman he400se"
+      - "hifiman he 400 se"
+      - "fiio jt7"
+      - "fiio ft1"
+      - "sennheiser hd560s"
+      - "sennheiser hd 560 s"
+      - "hifiman sundara"
+      - "hifiman sundata"
+      - "hyperx cloud stinger 2"
+      - "razer barracuda x 2022"
+      - "simgot ep5"
+      - "edifier hecate g5 max"
+      - "hyperx cloud iii s wireless"
+      - "hyperx cloud iiis wireless"
+      - "sony inzone h6 air"
+      - "beyerdynamic mmx100"
+      - "beyerdynamic mmx 100"
+      - "beyerdynamic mmx200 wireless"
+      - "beyerdynamic mmx 200 wireless"
+      - "drop epos pc38x"
+      - "drop+epos pc38x"
+      - "audeze maxwell"
+      - "audeze maxwell 2"
+      - "cmf buds 2 plus"
+      - "moondrop pudding"
+      - "realme buds air 7"
+      - "oppo enco air5 pro"
+      - "oppo enco air 5 pro"
+      - "oppo enci air 5 pro"
+      - "moondrop pill"
+      - "moondrop block"
+      - "apple airpods pro 2"
+      - "apple airpods pro 3"
+      - "airpods pro 2"
+      - "airpods pro 3"
+      - "samsung galaxy buds 3 pro"
+      - "samsung galaxy buds 4 pro"
+      - "sony wf-1000xm5"
+      - "sony wf1000xm5"
+      - "bose quietcomfort earbuds 2"
+      - "bose quietcomfort earbuds 2024"
+      - "bose quietcomfort ultra earbuds"
+      - "bose quietcomfort ultra earbuds 2"
+      - "bose quietcomfort ultra earbuds 2nd gen"
+      - "bose queitcomfort earbuds 2"
+      - "ugreen hitune max 5c"
+      - "edifier w820nb+ 2025"
+      - "edifier w820 nb plus 2025"
+      - "haylou s35"
+      - "tanchjim rita"
+      - "cmf headphone pro"
+      - "sennheiser momentum 4"
+      - "sony wh-1000xm6"
+      - "sony wh1000xm6"
+      - "bose quietcomfort ultra headphones"
+      - "bose quietcomfort ultra headphones 2"
+      - "apple airpods max"
+      - "apple airpods max 2"
+    fuzzy_threshold: 92
+    exclude:
+      - "realme buds air 7 pro"
+
+  # Только версия Fiio FT3 с сопротивлением 350 Ом.
+  - id: headphones_fiio_ft3_350ohm
+    aliases:
+      - "fiio ft3"
+    require_any:
+      - "350 ohm"
+      - "350 ом"
+      - "350Ω"
+    fuzzy_threshold: 92
+    exclude: []
+
+  - id: dac_audio_interfaces
+    aliases:
+      - "cx31993"
+      - "cb1200au"
+      - "jcally jm12"
+      - "fiio ja11"
+      - "trn black pearl"
+      - "fiio snowsky melody"
+      - "jcally jm20"
+      - "jcally jm20 max"
+      - "fiio snowsky retro nano"
+      - "topping e2x2"
+    fuzzy_threshold: 92
+    exclude: []
+
+  - id: speakers_models
+    aliases:
+      - "edifier mr3"
+      - "edifier mr4"
+      - "edifier mr5"
+      - "genelec 8030c"
+      - "genelec 8330"
+      - "tonaudio linear.67"
+      - "tonaudio linear 67"
+      - "soundcore boom 3i"
+      - "soundcore boom 2 plus"
+      - "soundcore boom 2 pro"
+    fuzzy_threshold: 92
+    exclude: []
