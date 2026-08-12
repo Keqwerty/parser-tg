@@ -588,3 +588,19 @@ filters:
       - "soundcore boom 2 pro"
     fuzzy_threshold: 92
     exclude: []
+
+  - id: simracing
+    aliases:
+      - "moza"
+      - "pxn v10 pro"
+      - "pxn sf"
+      - "pxn a7"
+      - "pxn shifter"
+      - "simagic"
+      - "fanatec"
+      - "simsonn"
+      - "кокпит"
+      - "стойка для руля"
+      - "подставка для руля"
+    fuzzy_threshold: 92
+    exclude: []
