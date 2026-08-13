@@ -10,6 +10,9 @@ services:
     restart: unless-stopped
     stop_grace_period: 20s
     init: true
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=16m,mode=1777
     healthcheck:
       test: ["CMD", "parser-tg", "healthcheck"]
       interval: 30s
@@ -21,6 +24,7 @@ services:
     cap_drop:
       - ALL
     mem_limit: 256m
+    pids_limit: 128
 
 volumes:
   parser-data:

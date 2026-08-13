@@ -4,11 +4,13 @@ import asyncio
 import contextlib
 import logging
 import signal
+import unicodedata
 from pathlib import Path
 from typing import Any
 
 from telethon import TelegramClient, events
 from telethon.errors import ChatForwardsRestrictedError, FloodWaitError, ServerError
+from telethon.tl.types import User
 
 from parser_tg.config import RulesConfig, Settings
 from parser_tg.matcher import Matcher
@@ -22,6 +24,24 @@ def message_link(source_id: str, username: str | None, message_id: int) -> str:
     if username:
         return f"https://t.me/{username.lstrip('@')}/{message_id}"
     return f"https://t.me/c/{source_id}/{message_id}"
+
+
+def safe_display_text(value: str) -> str:
+    """Remove control and formatting characters from untrusted Telegram metadata."""
+    sanitized = "".join(
+        " " if unicodedata.category(char).startswith("C") else char for char in value
+    )
+    return " ".join(sanitized.split())
+
+
+def validate_recipient(entity: Any, expected_id: int) -> User:
+    if not isinstance(entity, User) or entity.bot or entity.deleted:
+        raise RuntimeError("TG_RECIPIENT must resolve to a non-bot Telegram user")
+    if entity.id != expected_id:
+        raise RuntimeError(
+            f"TG_RECIPIENT resolved to unexpected user ID: expected {expected_id}, got {entity.id}"
+        )
+    return entity
 
 
 class TelegramDelivery:
@@ -46,14 +66,19 @@ class TelegramDelivery:
                 f"Источник: {item.source_title}\n"
                 f"{link}"
             )
-            await self._with_flood_wait(self._client.send_message, self._recipient, text)
+            await self._with_flood_wait(
+                self._client.send_message,
+                self._recipient,
+                text,
+                parse_mode=None,
+            )
             return "protected_link"
 
     @staticmethod
-    async def _with_flood_wait(function: Any, *args: Any) -> Any:
+    async def _with_flood_wait(function: Any, *args: Any, **kwargs: Any) -> Any:
         for attempt in range(3):
             try:
-                return await function(*args)
+                return await function(*args, **kwargs)
             except FloodWaitError as exc:
                 if attempt == 2 or exc.seconds > 300:
                     raise
@@ -77,7 +102,7 @@ class TelegramService:
             settings.api_id,
             settings.api_hash,
             auto_reconnect=True,
-            sequential_updates=False,
+            sequential_updates=True,
         )
         self._processor: Processor | None = None
         self._state: StateStore | None = None
@@ -92,7 +117,11 @@ class TelegramService:
                     "Telegram session is not authorized; run `parser-tg login` interactively first"
                 )
 
-            recipient = await self._client.get_input_entity(self._settings.recipient)
+            recipient_entity = validate_recipient(
+                await self._client.get_entity(self._settings.recipient),
+                self._settings.recipient,
+            )
+            recipient = await self._client.get_input_entity(recipient_entity)
             sources = []
             for configured_source in self._rules.sources:
                 entity = await self._client.get_entity(configured_source)
@@ -105,7 +134,7 @@ class TelegramService:
                     "source_resolved id=%s username=%s title=%s",
                     entity.id,
                     getattr(entity, "username", None),
-                    getattr(entity, "title", ""),
+                    safe_display_text(getattr(entity, "title", "")),
                 )
 
             self._state = StateStore(self._settings.state_path)
@@ -160,7 +189,8 @@ class TelegramService:
         return tuple(sorted(messages or (edited_message,), key=lambda value: value.id))
 
     async def _process_messages(self, messages: tuple[Any, ...], *, edited: bool) -> None:
-        assert self._processor is not None
+        if self._processor is None:
+            raise RuntimeError("Telegram message processor is not initialized")
         if not messages:
             return
         try:
@@ -175,7 +205,12 @@ class TelegramService:
             item = IncomingItem(
                 source_id=str(chat.id),
                 source_title=(
-                    getattr(chat, "title", None) or getattr(chat, "username", None) or str(chat.id)
+                    safe_display_text(
+                        getattr(chat, "title", None)
+                        or getattr(chat, "username", None)
+                        or str(chat.id)
+                    )
+                    or str(chat.id)
                 ),
                 source_username=getattr(chat, "username", None),
                 item_key=item_key,

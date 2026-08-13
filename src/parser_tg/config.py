@@ -32,7 +32,7 @@ class RulesConfig:
 class Settings:
     api_id: int
     api_hash: str
-    recipient: str | int
+    recipient: int
     session_path: Path
     config_path: Path
     state_path: Path
@@ -49,10 +49,10 @@ class Settings:
         if api_id <= 0:
             raise ConfigError("TG_API_ID must be positive")
 
-        recipient_raw = (
-            _required_env("TG_RECIPIENT") if require_recipient else os.getenv("TG_RECIPIENT", "me")
-        )
-        recipient = _parse_peer(recipient_raw)
+        recipient_raw = os.getenv("TG_RECIPIENT")
+        if require_recipient and not recipient_raw:
+            recipient_raw = _required_env("TG_RECIPIENT")
+        recipient = _parse_recipient_id(recipient_raw) if recipient_raw else 0
         session_path = Path(os.getenv("TG_SESSION_PATH", "/data/reader.session"))
         return cls(
             api_id=api_id,
@@ -147,3 +147,10 @@ def _parse_peer(value: str) -> str | int:
     if re.fullmatch(r"-?\d+", value):
         return int(value)
     return value
+
+
+def _parse_recipient_id(value: str) -> int:
+    value = value.strip()
+    if not re.fullmatch(r"\d+", value) or int(value) <= 0:
+        raise ConfigError("TG_RECIPIENT must be a positive numeric Telegram user ID")
+    return int(value)

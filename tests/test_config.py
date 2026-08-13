@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from parser_tg.config import ConfigError, load_rules
+from parser_tg.config import ConfigError, Settings, load_rules
 
 
 def test_load_rules(tmp_path: Path) -> None:
@@ -31,6 +31,21 @@ def test_empty_filters_enable_match_all_configuration(tmp_path: Path) -> None:
     path.write_text("version: 1\nsources: ['@one']\nfilters: []\n", encoding="utf-8")
     rules = load_rules(path)
     assert rules.filters == ()
+
+
+def test_recipient_must_be_positive_numeric_user_id(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("TG_API_ID", "123")
+    monkeypatch.setenv("TG_API_HASH", "hash")
+    monkeypatch.setenv("TG_RECIPIENT", "456")
+    assert Settings.from_env().recipient == 456
+
+    for value in ("@username", "-100123", "0"):
+        monkeypatch.setenv("TG_RECIPIENT", value)
+        with pytest.raises(ConfigError, match="positive numeric"):
+            Settings.from_env()
+
+    monkeypatch.delenv("TG_RECIPIENT")
+    assert Settings.from_env(require_recipient=False).recipient == 0
 
 
 @pytest.mark.parametrize(
