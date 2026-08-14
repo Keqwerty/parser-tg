@@ -5,6 +5,7 @@ import contextlib
 import logging
 import signal
 import unicodedata
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -42,6 +43,29 @@ def validate_recipient(entity: Any, expected_id: int) -> User:
             f"TG_RECIPIENT resolved to unexpected user ID: expected {expected_id}, got {entity.id}"
         )
     return entity
+
+
+def messages_are_recent(
+    messages: tuple[Any, ...],
+    max_age: timedelta,
+    *,
+    now: datetime | None = None,
+) -> bool:
+    """Check original publication dates, not the time of a later edit."""
+    dates: list[datetime] = []
+    for message in messages:
+        published_at = getattr(message, "date", None)
+        if not isinstance(published_at, datetime):
+            return False
+        if published_at.tzinfo is None:
+            published_at = published_at.replace(tzinfo=UTC)
+        dates.append(published_at.astimezone(UTC))
+    if not dates:
+        return False
+    current_time = now or datetime.now(UTC)
+    if current_time.tzinfo is None:
+        current_time = current_time.replace(tzinfo=UTC)
+    return min(dates) >= current_time.astimezone(UTC) - max_age
 
 
 class TelegramDelivery:
@@ -192,6 +216,15 @@ class TelegramService:
         if self._processor is None:
             raise RuntimeError("Telegram message processor is not initialized")
         if not messages:
+            return
+        max_age = timedelta(days=self._settings.max_message_age_days)
+        if not messages_are_recent(messages, max_age):
+            logger.info(
+                "event_skipped_old message_ids=%s edited=%s max_age_days=%s",
+                ",".join(str(message.id) for message in messages),
+                edited,
+                self._settings.max_message_age_days,
+            )
             return
         try:
             first = messages[0]

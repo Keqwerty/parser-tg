@@ -37,7 +37,9 @@ def test_recipient_must_be_positive_numeric_user_id(monkeypatch: pytest.MonkeyPa
     monkeypatch.setenv("TG_API_ID", "123")
     monkeypatch.setenv("TG_API_HASH", "hash")
     monkeypatch.setenv("TG_RECIPIENT", "456")
-    assert Settings.from_env().recipient == 456
+    settings = Settings.from_env()
+    assert settings.recipient == 456
+    assert settings.max_message_age_days == 30
 
     for value in ("@username", "-100123", "0"):
         monkeypatch.setenv("TG_RECIPIENT", value)
@@ -46,6 +48,19 @@ def test_recipient_must_be_positive_numeric_user_id(monkeypatch: pytest.MonkeyPa
 
     monkeypatch.delenv("TG_RECIPIENT")
     assert Settings.from_env(require_recipient=False).recipient == 0
+
+
+def test_message_age_must_be_positive_integer(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("TG_API_ID", "123")
+    monkeypatch.setenv("TG_API_HASH", "hash")
+    monkeypatch.setenv("TG_RECIPIENT", "456")
+    monkeypatch.setenv("MAX_MESSAGE_AGE_DAYS", "7")
+    assert Settings.from_env().max_message_age_days == 7
+
+    for value in ("0", "-1", "month"):
+        monkeypatch.setenv("MAX_MESSAGE_AGE_DAYS", value)
+        with pytest.raises(ConfigError, match="MAX_MESSAGE_AGE_DAYS"):
+            Settings.from_env()
 
 
 @pytest.mark.parametrize(

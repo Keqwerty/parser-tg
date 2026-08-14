@@ -38,6 +38,7 @@ class Settings:
     state_path: Path
     health_path: Path
     log_level: str
+    max_message_age_days: int
 
     @classmethod
     def from_env(cls, *, require_recipient: bool = True) -> Settings:
@@ -54,6 +55,7 @@ class Settings:
             recipient_raw = _required_env("TG_RECIPIENT")
         recipient = _parse_recipient_id(recipient_raw) if recipient_raw else 0
         session_path = Path(os.getenv("TG_SESSION_PATH", "/data/reader.session"))
+        max_message_age_days = _positive_int_env("MAX_MESSAGE_AGE_DAYS", default=30)
         return cls(
             api_id=api_id,
             api_hash=_required_env("TG_API_HASH"),
@@ -63,6 +65,7 @@ class Settings:
             state_path=Path(os.getenv("STATE_PATH", "/data/state.sqlite3")),
             health_path=Path(os.getenv("HEALTH_PATH", "/data/healthy")),
             log_level=os.getenv("LOG_LEVEL", "INFO").upper(),
+            max_message_age_days=max_message_age_days,
         )
 
 
@@ -139,6 +142,17 @@ def _required_env(name: str) -> str:
     value = os.getenv(name)
     if not value:
         raise ConfigError(f"environment variable {name} is required")
+    return value
+
+
+def _positive_int_env(name: str, *, default: int) -> int:
+    raw = os.getenv(name, str(default))
+    try:
+        value = int(raw)
+    except ValueError as exc:
+        raise ConfigError(f"{name} must be a positive integer") from exc
+    if value <= 0:
+        raise ConfigError(f"{name} must be a positive integer")
     return value
 
 

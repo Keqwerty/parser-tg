@@ -1,5 +1,7 @@
 import os
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from types import SimpleNamespace
 
 from telethon.errors import ChatForwardsRestrictedError
 from telethon.tl.types import User
@@ -9,6 +11,7 @@ from parser_tg.telegram import (
     TelegramDelivery,
     healthcheck,
     message_link,
+    messages_are_recent,
     safe_display_text,
     validate_recipient,
 )
@@ -63,6 +66,22 @@ def test_healthcheck(tmp_path: Path) -> None:
     assert healthcheck(path)
     os.utime(path, (1, 1))
     assert not healthcheck(path)
+
+
+def test_message_age_uses_original_publication_date() -> None:
+    now = datetime(2026, 8, 14, 12, tzinfo=UTC)
+    recent = SimpleNamespace(date=now - timedelta(days=29))
+    boundary = SimpleNamespace(date=now - timedelta(days=30))
+    old_edited_today = SimpleNamespace(
+        date=now - timedelta(days=31),
+        edit_date=now,
+    )
+
+    max_age = timedelta(days=30)
+    assert messages_are_recent((recent,), max_age, now=now)
+    assert messages_are_recent((boundary,), max_age, now=now)
+    assert not messages_are_recent((old_edited_today,), max_age, now=now)
+    assert not messages_are_recent((SimpleNamespace(),), max_age, now=now)
 
 
 async def test_protected_content_falls_back_to_link() -> None:
